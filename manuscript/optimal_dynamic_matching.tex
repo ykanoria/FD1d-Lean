@@ -1,0 +1,1160 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools,microtype,enumitem,setspace,xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,
+            urlcolor=blue!45!black,breaklinks=true]{hyperref}
+\onehalfspacing
+\numberwithin{equation}{section}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\E}{\mathbb E}
+\newcommand{\T}{\mathcal T}
+\newcommand{\Unif}{\operatorname{Unif}}
+\newcommand{\depth}{\operatorname{depth}}
+\newcommand{\Wone}{W_1}
+\setlist[enumerate]{itemsep=2pt,topsep=4pt}
+\title{Optimal fully dynamic matching on the line}
+\ifdefined\AnonymousSubmission
+  \author{}
+  \hypersetup{pdftitle={Optimal fully dynamic matching on the line},pdfauthor={}}
+\else
+  \author{Yash Kanoria\thanks{Decision, Risk, and Operations Division,
+  Columbia Business School, Columbia University, New York, NY 10027, USA.
+  Email: \href{mailto:ykanoria@columbia.edu}{ykanoria@columbia.edu}.}}
+  \hypersetup{pdftitle={Optimal fully dynamic matching on the line},pdfauthor={Yash Kanoria}}
+\fi
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+We study online matching with a fixed inventory of \(m\) supply points on
+the unit interval. Each uniform demand is matched immediately to an
+available supply, which departs and is replaced by an independent uniform
+point. We construct a policy with long-run expected matching distance
+\(O(\log m/m)\), matching the known lower bound. The same order holds for
+the long-run root-mean-square distance and, after initialization, for average cost
+over every horizon of at least \(2m^2\) periods. The policy assigns deletion
+probabilities recursively on a dyadic tree and implements them by quantile
+transport. Its analysis combines a harmonic inventory potential with a
+quadratic Bellman inequality. Tree symmetry cancels interactions between
+spatial scales, while the Bellman inequality controls both transport
+discrepancy and the curvature loss in the potential drift.
+\end{abstract}
+\noindent\textbf{Keywords:} dynamic matching; optimal transport; stochastic
+control; Lyapunov drift; multiscale analysis.
+
+\section{Introduction}
+
+Spatial matching with replenishment requires a balance between current
+service cost and future availability. Matching each demand to a nearby
+supply saves distance immediately, but the resulting inventory can become
+depleted in regions that future demands will visit. In one dimension,
+controlling this depletion simultaneously at many spatial scales is the
+central difficulty.
+
+We consider a model with \(m\) available supplies, independent uniform
+demand arrivals, and independent uniform replenishment after every match.
+Kanoria \cite{Kanoria} established a lower bound of order \(\log m/m\)
+and an upper bound of order \((\log m)^2/m\) for this model. The lower
+bound relates dynamic matching on the line to static random matching in
+two dimensions, with time playing the role of the second coordinate, and
+uses the theorem of Ajtai, Koml\'os and Tusn\'ady \cite{AKT}. We close
+this logarithmic gap by constructing a policy with cost \(O(\log m/m)\).
+
+The construction separates inventory control from spatial assignment.
+Conditional on the inventory, it first specifies the probability of
+deleting a supply from each cell of a dyadic partition. Monotone transport
+then couples these probabilities to the arriving demand. The deletion
+probabilities determine the inventory dynamics; their coupling to demand
+determines the immediate distance. This separation allows the inventory
+feedback to be designed for a tractable drift calculation.
+
+\subsection{Model and main result}
+
+Fix \(m\ge2\). The initial inventory \(S_0\) is a multiset of \(m\) points
+in \([0,1]\). Let \((U_t)_{t\ge1}\) and \((A_t)_{t\ge1}\) be mutually
+independent iid \(\Unif[0,1]\) sequences. In period \(t\), the operator
+observes \(U_t\), chooses \(X_t\in S_{t-1}\), incurs cost
+\(C_t=|U_t-X_t|\), and deletes \(X_t\). The replenishment \(A_t\) is
+then observed and inserted. A policy may use the current demand and the
+history, but not future demands or replenishments. Write
+\[
+J_T=\frac1T\sum_{t=1}^T\E C_t,
+\qquad J_\infty=\limsup_{T\to\infty}J_T.
+\]
+All logarithms are natural unless a base is indicated.
+
+\begin{theorem}\label{thm:main}
+There is an online policy and a universal constant \(C<\infty\) such
+that, for every \(m\ge2\) and every initial inventory,
+\begin{enumerate}[label=(\roman*)]
+\item the policy satisfies
+\[
+\limsup_{t\to\infty}(\E C_t^2)^{1/2}
+\le C\frac{\log(m+1)}m;
+\]
+\item with an initial phase that replaces the \(m\) original supplies,
+its average cost satisfies
+\[
+J_T\le C\frac{\log(m+1)}m
+\qquad\text{for every }T\ge2m^2.
+\]
+\end{enumerate}
+The policy can be implemented using \(O(\log m)\) operations per period
+and \(O(m)\) memory in the real-arithmetic model.
+\end{theorem}
+
+The initial replacement phase consists of matching to one original supply
+in each of the first \(m\) periods and retaining all replenishments.
+It produces iid uniform inventory at total cost at most \(m\).
+The constants in the proof are explicit but are not optimized.
+
+\begin{corollary}\label{cor:sharp}
+For every \(m\ge2\), every initial inventory, and every \(T\ge2m^2\),
+\[
+\inf_\alpha J_T(\alpha)=\Theta\!\left(\frac{\log m}{m}\right),
+\]
+with universal implied constants. The same order holds for the optimal
+long-run expected cost.
+\end{corollary}
+\begin{proof}
+Apply Theorem~\ref{thm:main} and the lower bound in
+Kanoria \cite[Theorem~3]{Kanoria}.
+\end{proof}
+
+\subsection{Related work and proof outline}
+
+Shor \cite{Shor} used hierarchical inventory control in stochastic packing
+and matching problems. These constructions motivate multiscale feedback,
+although the present policy and its drift estimate are different.
+Hierarchical Greedy, analyzed by Kanoria \cite{Kanoria}, gives the previous
+\(O((\log m)^2/m)\) upper bound in the fully dynamic one-dimensional
+model. Our result concerns the optimal achievable cost; the sharp
+performance of Hierarchical Greedy remains a separate question.
+
+The separation of deletion probabilities from their spatial implementation
+has a close precedent in Holden, Peres and Zhai \cite{HPZ}. Their
+allocation-based online matching construction gives every available supply
+equal deletion probability, preserving the iid distribution of the
+survivors. In the fully dynamic model, preserving iid inventory is
+insufficient for the desired bound \cite[Section~7.1]{Kanoria}.
+Here the deletion probabilities depend on the inventory, and the analysis
+controls the resulting dependent count distribution.
+For the semidynamic model, in which supplies are present initially and
+are not replenished, Balkanski, Faenza and P\'erivier \cite{BFP} establish
+constant competitiveness of Greedy when supplies and demands are iid
+uniform. Replenishment makes persistent spatial depletion a distinct
+control problem.
+
+The main analytic step is a local quadratic Bellman inequality, chosen
+together with the policy. Summed down the tree, it controls squared
+deletion imbalances by the restoring term of a harmonic inventory
+potential. The curvature loss in the potential drift is bounded by one
+common rate energy per level. A regularization parameter proportional to
+the tree depth absorbs this loss. Finally, an integrated Haar expansion
+relates the deletion imbalances to transport distance. Its cross terms
+vanish in expectation by symmetry of the inventory dynamics; this
+cancellation is essential for the logarithmic order.
+
+Section~\ref{sec:policy} defines the policy and proves its elementary
+properties. Section~\ref{sec:energy} develops the drift estimate, and
+Section~\ref{sec:transport} converts it to matching-cost bounds.
+Section~\ref{sec:heuristic} explains the design choices after the policy
+and potential have been introduced. Section~\ref{sec:extensions} discusses
+further directions and limitations. The local Bellman calculation is given in
+Appendix~\ref{app:local-proof}.
+
+\section{The matching policy}\label{sec:policy}
+
+Set
+\begin{equation}\label{eq:parameters}
+a=2000\lceil\log_2(m+1)\rceil,\qquad
+n=2^L=2^{\lfloor\log_2\max\{1,m/a\}\rfloor}.
+\end{equation}
+Thus
+\begin{equation}\label{eq:parameter-bounds}
+\frac1n\le\frac{2a}{m},\qquad a\ge2000L.
+\end{equation}
+
+
+Partition \([0,1]\) into \(n=2^L\) equal dyadic leaves and let \(\T\)
+be the complete binary tree of their intervals, with root \(o\).
+Let \(\T_\ell\) denote the nodes at depth \(\ell\). Use half-open cells,
+except for the rightmost cell, so each supply belongs to exactly one leaf.
+A node \(v\) has interval
+\(I_v\), length \(p_v=2^{-\depth(v)}\), and inventory \(N_v\).
+
+Starting with \(q_{\mathrm{root}}=1\), assign deletion masses recursively.
+At a nonempty internal node abbreviate its length and mass by \(p,q\).
+Temporarily order its child inventories as \(x\ge y\), put
+\(N=x+y\) and \(\Delta=x-y\), and, when \(y>0\), set
+\begin{equation}\label{eq:policy}
+b=\min\left\{
+\frac{2aq\Delta}{xy},
+\frac{q\Delta}{N},
+q-\frac{2py}{2y+a}
+\right\}.
+\end{equation}
+Give deletion mass \((q+b)/2\) to the larger child and \((q-b)/2\) to
+the smaller, and then restore their spatial labels. If \(y=0\), send all
+mass to the occupied child. If \(x=y>0\), split equally. Empty nodes and
+their descendants receive mass zero.
+
+The three terms in \eqref{eq:policy} will be called the \emph{feedback},
+\emph{uniform-deletion cap}, and \emph{rate-floor cap}. The feedback
+favors the more populated child. The second term keeps that child's
+average deletion rate per supply below its sibling's; the third enforces
+a lower bound \(p/(2y+a)\) on the smaller child's rate. Lemma
+\ref{lem:invariants} proves that they define valid probabilities and that
+every occupied child receives positive mass.
+
+\subsection{Quantile implementation}
+
+Spread each leaf mass \(q_i\) uniformly over its leaf, producing a
+probability measure \(Q\) with distribution function \(F_Q\). Given demand
+\(U\), let \(Y=F_Q^{-1}(U)\), choose the leaf containing \(Y\), and match
+to a fixed representative supply of that leaf. Representatives can be
+maintained in linked lists. The choice of representative has no effect
+on the count dynamics or on our cost bounds.
+Equivalently, route \(U\) recursively using the conditional child masses,
+rescaling the residual quantile at each split. Only the visited path is
+evaluated. After deletion and replenishment, update the two affected
+count paths. The cost is \(O(L+1)\) operations per period and \(O(m+n)\)
+memory.
+
+\begin{proposition}[Separation by quantile transport]\label{prop:quantile}
+For any fixed state-dependent deletion probabilities on ordered supplies,
+monotone quantile assignment preserves the inventory transition law and
+minimizes immediate expected distance among assignments with those deletion
+probabilities. For the leaf implementation above,
+\begin{equation}\label{eq:leaf-cost}
+\E[C\mid S]
+\le\frac1n+\int_0^1|F_Q(z)-z|\,dz.
+\end{equation}
+\end{proposition}
+\begin{proof}
+The quantile intervals have exactly the prescribed masses, so the deleted
+label and hence the next-inventory law are unchanged. Monotone coupling is
+optimal for absolute distance on the line and has cost
+\(\Wone(\Unif[0,1],Q)=\int_0^1|F_Q(z)-z|\,dz\). The actual supply selected
+inside the leaf lies within one leaf width of the auxiliary point \(Y\),
+which proves \eqref{eq:leaf-cost}.
+\end{proof}
+
+\subsection{Feasibility and rate invariants}\label{sec:structure}
+
+For a nonempty node define its average deletion rate per supply by \(h=q/N\), and
+at every node define
+\begin{equation}\label{eq:htz}
+t=\frac{p-q}{a},
+\qquad
+Z=\frac{p}{N+a/2}.
+\end{equation}
+The variables \(t\) and \(Z\) are defined by \eqref{eq:htz} even when
+\(N=q=0\). We extend \(h\) analytically to empty nodes as follows. At an
+empty child of a nonempty parent set
+\begin{equation}\label{eq:empty-rate}
+h_{\mathrm{empty}}
+=\max\{h_{\mathrm{parent}},p_{\mathrm{parent}}/a\}.
+\end{equation}
+At an empty parent, pass its auxiliary rate to both children. These rates
+are used only in the analysis; no deletion mass is assigned to an empty
+node.
+
+For a parent whose children are ordered as \(x\ge y\), write
+\(h_+=(q+b)/(2x)\) and \(h_-=(q-b)/(2y)\) when both counts are positive.
+Let \(b_v=q_{v_{\mathrm L}}-q_{v_{\mathrm R}}\) use the fixed spatial
+left--right labels.
+
+\begin{lemma}[Invariant domain and rate energy]\label{lem:invariants}
+At every node,
+\begin{equation}\label{eq:invariant-domain}
+t\le\frac h2,
+\qquad Z\le h.
+\end{equation}
+For a positive-count split, all three terms in \eqref{eq:policy} are
+nonnegative, \(0\le b<q\), and every occupied child receives positive
+mass. Moreover, if
+\begin{equation}\label{eq:H-G}
+H_\ell=\sum_{v\in\T_\ell}p_vh_v^2,
+\qquad
+G=\sum_{v\in\T\setminus\T_L}p_vb_v^2,
+\end{equation}
+then
+\begin{equation}\label{eq:H-monotone}
+H_0=m^{-2}\le H_1\le\cdots\le H_L.
+\end{equation}
+\end{lemma}
+\begin{proof}
+At the root, \(t=0\) and \(h=1/m\). For a nonempty node the two
+inequalities in \eqref{eq:invariant-domain} are equivalent: both reduce to
+\[
+p\le q\left(1+\frac{a}{2N}\right).
+\]
+Suppose this holds at a nonempty parent. The feedback and uniform-deletion
+cap are nonnegative, and the parent invariant gives
+\[
+q-\frac{2py}{2y+a}\ge\frac{ahx}{2y+a}>0.
+\]
+When \(y>0\), the uniform cap is strictly less than \(q\), so
+\(0\le b<q\) and both child masses are positive.
+The rate-floor cap gives the
+smaller child mass
+\[
+q_-\ge\frac{py}{2y+a},
+\]
+which is exactly \(Z_-\le h_-\). For the larger child, \(q_+\ge q/2\)
+and
+\[
+p\le q\left(1+\frac a{2N}\right)
+\le q\left(1+\frac a{2x}\right),
+\]
+which gives \(Z_+\le h_+\). If the smaller child is empty,
+\eqref{eq:empty-rate} gives \(h_-=p/a=Z_-\) or a larger value; below an
+empty parent the conclusion is inherited.
+
+The uniform-deletion cap is equivalent to \(h_+\le h_-\). The
+parent rate is the inventory-weighted average
+\(h=(xh_++yh_-)/(x+y)\), so
+\[
+\frac{h_++h_-}{2}-h
+=\frac{x-y}{2(x+y)}(h_--h_+)\ge0.
+\]
+Jensen's inequality therefore gives
+\[
+\frac{h_+^2+h_-^2}{2}\ge h^2.
+\]
+The auxiliary rates give the same inequality at empty children. Multiplying
+by \(p\), and observing that each child length is \(p/2\), proves
+\eqref{eq:H-monotone} after summing over a level.
+\end{proof}
+
+\subsection{Symmetry of the count process}
+
+\begin{lemma}[Count-chain symmetry]\label{lem:symmetry}
+The finite chain of leaf counts is irreducible and aperiodic and hence has
+a unique stationary law \(\pi\). This law is invariant under every
+automorphism of the rooted binary tree. An invariant initial count law
+remains invariant at every deterministic time.
+\end{lemma}
+\begin{proof}
+Every occupied leaf has positive deletion probability, so supplies can be
+moved between arbitrary leaves with positive probability. Replenishment in
+the deleted leaf gives a self-loop. Thus the chain is irreducible and
+aperiodic. Exchanging two sibling subtrees exchanges their counts and,
+by \eqref{eq:policy}, their deletion masses. The transition kernel therefore
+commutes with every tree automorphism. Uniqueness makes the stationary law
+invariant, and the same kernel identity preserves any invariant initial law.
+\end{proof}
+
+\section{A multiscale drift estimate}\label{sec:energy}
+
+The proof controls two state-dependent quantities: the terminal rate
+energy \(H_L\) and the transport energy \(G\) from \eqref{eq:H-G}.
+The potential below has a drift whose principal term dominates both.
+Its curvature loss is at most \(LH_L\), which explains the choice
+\(a\ge2000L\).
+
+\subsection{The harmonic potential}
+
+Define the harmonic inventory potential and its restoring term by
+\begin{equation}\label{eq:Phi-D}
+\Phi=\sum_{v\ne\mathrm{root}}p_v^2
+\sum_{j=1}^{N_v}\frac1{j+a/2},
+\qquad
+D=\sum_{v\ne\mathrm{root}}p_v^2
+\frac{p_v-q_v}{N_v+a/2}.
+\end{equation}
+Since \(t_vZ_v=(p_v-q_v)p_v/[a(N_v+a/2)]\),
+\begin{equation}\label{eq:D-tZ}
+D=a\sum_{v\ne\mathrm{root}}p_vt_vZ_v.
+\end{equation}
+
+\begin{lemma}[Exact harmonic drift]\label{lem:drift}
+Conditional on the present count state,
+\begin{equation}\label{eq:drift}
+\E[\Phi_{\mathrm{next}}-\Phi\mid S]=D-\mathcal R,
+\end{equation}
+where
+\begin{equation}\label{eq:curvature-error}
+\mathcal R=
+\sum_{v\ne\mathrm{root}}
+\frac{p_v^3(1-q_v)}{(N_v+a/2)(N_v+a/2+1)}.
+\end{equation}
+Moreover,
+\begin{equation}\label{eq:R-bound}
+0\le\mathcal R\le\sum_{\ell=1}^L H_\ell\le LH_L.
+\end{equation}
+\end{lemma}
+\begin{proof}
+At a node of count \(k\), an unmatched replenishment increases its count
+with probability \(p(1-q)\), while an unreplenished deletion decreases it
+with probability \(q(1-p)\). Hence
+\begin{align*}
+\E\left[
+\sum_{j=1}^{N_{\mathrm{next}}}\frac1{j+a/2}
+-\sum_{j=1}^{k}\frac1{j+a/2}
+\,\middle|\,S\right]
+&=\frac{p(1-q)}{k+a/2+1}-\frac{q(1-p)}{k+a/2}\\
+&=\frac{p-q}{k+a/2}
+-\frac{p(1-q)}{(k+a/2)(k+a/2+1)}.
+\end{align*}
+This remains valid at \(k=0\). Multiplication by \(p_v^2\) and summation
+give \eqref{eq:drift}.
+
+Finally,
+\[
+\frac{p_v^3(1-q_v)}{(N_v+a/2)(N_v+a/2+1)}
+\le p_vZ_v^2\le p_vh_v^2
+\]
+by \eqref{eq:invariant-domain}. Sum by levels and use
+\eqref{eq:H-monotone}.
+\end{proof}
+
+
+\subsection{The local Bellman inequality}
+
+Define the quadratic Bellman correction
+\begin{equation}\label{eq:Bellman}
+B(h,t,Z)=\left(t-\frac h2\right)Z-\frac{t^2}{6}.
+\end{equation}
+By Lemma~\ref{lem:invariants}, \(B\le0\) at every node.
+For a quantity attached to the two children, write
+\(\E_{\mathrm{ch}}\) for their equal average; these are spatial weights
+\(1/2,1/2\), not deletion probabilities.
+
+The mixed term \(-(h/2-t)Z\) couples the harmonic marginal \(Z\) to
+the slack in the rate-floor constraint. The quadratic term uses the
+identity \(t'_\pm=(t\mp b/a)/2\): its contribution to
+\(\E_{\mathrm{ch}}B'-B\) is \(t^2/8-b^2/(24a^2)\).
+Thus it supplies a positive squared-drift term at a controlled cost in
+transport energy. The following inequality quantifies the resulting
+balance.
+
+\begin{lemma}[Local Bellman inequality]\label{lem:local}
+At every internal node,
+\begin{equation}\label{eq:local}
+\E_{\mathrm{ch}}[t'Z'+B(h',t',Z')]-B(h,t,Z)
+\ge\frac1{1000}\left\{
+\E_{\mathrm{ch}}(h')^2-h^2+\frac{b^2}{a^2}
+\right\}.
+\end{equation}
+\end{lemma}
+
+The proof is a three-case calculation according to which term in
+\eqref{eq:policy} is active. It uses only square completion,
+Cauchy--Schwarz, Young's inequality, and elementary rational bounds. The
+complete proof appears in Appendix~\ref{app:local-proof}.
+
+\begin{proposition}[Deterministic aggregate estimate]\label{prop:aggregate}
+Every count state satisfies
+\begin{equation}\label{eq:aggregate}
+D\ge
+\frac a{1000}H_L+\frac{G}{1000a}
+-\frac{501a}{1000m^2}.
+\end{equation}
+\end{proposition}
+\begin{proof}
+Multiply \eqref{eq:local} at node \(v\) by \(p_v\) and sum over all
+internal nodes. Since each child has length \(p_v/2\), the left side
+telescopes to
+\[
+\frac Da+\sum_{v\in\T_L}p_vB_v-B_{\mathrm{root}},
+\]
+while the right side telescopes to
+\[
+\frac1{1000}\left(H_L-H_0+\frac{G}{a^2}\right).
+\]
+The leaf terms satisfy \(B_v\le0\), and
+\[
+B_{\mathrm{root}}
+=-\frac1{2m(m+a/2)}\ge-\frac1{2m^2}.
+\]
+Using \(H_0=m^{-2}\) gives \eqref{eq:aggregate}.
+\end{proof}
+
+
+\subsection{A unified energy bound}
+
+\begin{proposition}[Energy estimate]\label{prop:energy}
+Write \(H_L(t)\) and \(G(t)\) for the energies before period \(t\), and \(\Phi_t\) for the potential after that period. For every initial count law and every integer $T\ge1$,
+\begin{equation}\label{eq:master-energy}
+ \frac1T\sum_{t=1}^T
+ \left\{\frac{a^2}{2}\E H_L(t)+\E G(t)\right\}
+ \le \frac{501a^2}{m^2}
+       +\frac{1000a}{T}\E[\Phi_T-\Phi_0].
+\end{equation}
+Consequently, under the stationary count law,
+\begin{equation}\label{eq:stationary-energy}
+ \E_\pi H_L\le\frac{1002}{m^2},\qquad
+ \E_\pi G\le\frac{501a^2}{m^2}.
+\end{equation}
+For an arbitrary initial law,
+\begin{equation}\label{eq:finite-G}
+ \frac1T\sum_{t=1}^T\E G(t)
+ \le\frac{501a^2}{m^2}+\frac{a^2}{2T}.
+\end{equation}
+\end{proposition}
+\begin{proof}
+Combining \eqref{eq:aggregate}, \eqref{eq:drift}, \eqref{eq:R-bound}, and $a\ge2000L$ gives
+\[
+ 1000a\,\E[\Phi_{t}-\Phi_{t-1}\mid S_{t-1}]
+ \ge\frac{a^2}{2}H_L(t)+G(t)-\frac{501a^2}{m^2}.
+\]
+Taking expectations and summing proves \eqref{eq:master-energy}.
+Stationarity makes its final term zero. For the finite-time bound, use
+\[
+ 0\le\Phi\le\log(1+2m/a)\le a/2000.
+\]
+The first upper bound follows by bounding each harmonic sum by its integral
+and using $\sum_{v\ne\mathrm{root}}p_v^2<1$.
+\end{proof}
+
+
+\section{From energy to matching distance}\label{sec:transport}
+
+For each internal node \(v\), let \(\tau_v\) be the tent supported on
+\(I_v\), linear from zero at its left endpoint to height \(1/2\) at its
+midpoint and back to zero at its right endpoint. If \(b_v\) uses actual
+spatial labels, the deletion distribution has the exact integrated Haar
+expansion
+\begin{equation}\label{eq:Haar}
+F_Q(z)-z=\sum_{v\in\T\setminus\T_L}b_v\tau_v(z),
+\qquad
+\int_0^1\tau_v(z)^2\,dz=\frac{p_v}{12}.
+\end{equation}
+
+\begin{lemma}[Cancellation and transport energy]\label{lem:transport-energy}
+Under any tree-invariant count law,
+\begin{equation}\label{eq:transport-energy}
+\E\int_0^1(F_Q(z)-z)^2\,dz=\frac1{12}\E G.
+\end{equation}
+Consequently,
+\begin{equation}\label{eq:transport-cost}
+(\E C^2)^{1/2}\le\frac1n+\sqrt{\frac{\E G}{12}}.
+\end{equation}
+\end{lemma}
+\begin{proof}
+Tents belonging to disjoint nodes have disjoint interiors. For nested
+distinct nodes, exchange the two child subtrees of the deeper node. Its
+coefficient changes sign while the ancestor coefficient is fixed. Tree
+invariance therefore makes their mixed expectation zero. Expanding
+\eqref{eq:Haar} proves \eqref{eq:transport-energy}.
+
+
+For the second assertion, write \(g(z)=F_Q(z)-z\). Since \(F_Q\) is
+continuous and piecewise linear, \(F_Q(Y)=U\) almost surely, and
+\[
+\E[(Y-U)^2\mid S]
+=\int_0^1g(z)^2F_Q'(z)\,dz
+=\int_0^1g(z)^2\,dz+\left[\frac{g(z)^3}{3}\right]_0^1
+=\int_0^1g(z)^2\,dz.
+\]
+The boundary term is zero. As \(|X-Y|\le1/n\), the \(L^2\) triangle
+inequality and \eqref{eq:transport-energy} prove
+\eqref{eq:transport-cost}.
+\end{proof}
+
+
+\subsection{Proof of Theorem~\ref{thm:main}}\label{sec:finite}
+
+Under the stationary count law, \eqref{eq:stationary-energy} and
+\eqref{eq:transport-cost} give
+\begin{equation}\label{eq:stationary-cost}
+(\E C_t^2)^{1/2}
+\le\left(2+\sqrt{\frac{501}{12}}\right)\frac am
+<8.5\frac am.
+\end{equation}
+For an arbitrary initial inventory, the finite count chain converges to
+its stationary law by Lemma~\ref{lem:symmetry}. In particular, the
+expectation of the bounded count function
+\(\int_0^1(F_Q(z)-z)^2\,dz\) converges to its stationary expectation.
+The conditional second-moment identity in the proof of
+Lemma~\ref{lem:transport-energy} and the bound \(|X-Y|\le1/n\)
+therefore give the same limiting bound as \eqref{eq:stationary-cost}.
+Since \(a=O(\log m)\), this proves part (i).
+
+If the initial count law is tree invariant, it remains so at every time.
+Apply \eqref{eq:transport-cost} at a uniformly selected time among
+\(1,\ldots,S\), and use \eqref{eq:finite-G}, to obtain
+\[
+\left(\frac1S\sum_{t=1}^S\E C_t^2\right)^{1/2}
+\le \frac{2a}{m}
++\sqrt{\frac1{12}\left(\frac{501a^2}{m^2}+\frac{a^2}{2S}\right)}.
+\]
+For \(S\ge m^2\), this is less than \(8.5a/m\) and also bounds
+the average expected distance.
+From an arbitrary initial inventory, replace one original supply per
+period during the first \(m\) periods. This costs at most \(m\) and
+leaves iid uniform supplies. For \(T\ge2m^2\), the remaining horizon
+\(S=T-m\) is at least \(m^2\), so
+\[
+J_T\le\frac mT+\frac ST\,8.5\frac am<9\frac am.
+\]
+This proves part (ii). The implementation bounds were established in
+Section~\ref{sec:policy}.
+\hfill\(\square\)
+
+\begin{corollary}[Balanced initial inventory]\label{cor:balanced}
+For every \(m\), there is an initial inventory law for which
+\[
+\left(\frac1T\sum_{t=1}^T\E C_t^2\right)^{1/2}
+\le\left(2+\sqrt{\frac{501}{12}}\right)\frac am
+\qquad\text{for every }T\ge1.
+\]
+When \(n\) divides \(m\), equal counts in all leaves suffice.
+\end{corollary}
+\begin{proof}
+Split the \(m\) supplies recursively as evenly as possible, using
+independent fair coins to choose the larger child whenever a count is odd.
+At each level the counts differ by at most one. Concavity of the harmonic
+summand in \eqref{eq:Phi-D} implies that this configuration maximizes
+the contribution of every level, hence maximizes \(\Phi\).
+Its count law is tree invariant. Thus \(\Phi_T-\Phi_0\le0\), and
+\eqref{eq:master-energy} bounds the average of \(\E G(t)\) by
+\(501a^2/m^2\) for every \(T\). Apply
+\eqref{eq:transport-cost} at a uniformly selected time.
+Positions within the leaves are arbitrary.
+\end{proof}
+
+\section{Design principles}\label{sec:heuristic}
+
+The preceding proof is exact. We now give complementary, near-balance
+calculations that explain the shape of the policy and potential.
+The approximations in this section are not used in the proof.
+
+\subsection{The logarithm and its spatial weight}
+
+An empty interval of length \(p\) receives demands with probability \(p\),
+and serving them costs a distance of order \(p\). Even if supplies are
+placed just outside both endpoints, its cost contribution is
+\(\int_0^p\min\{z,p-z\}\,dz=p^2/4\).
+This suggests the weight \(p^2\) in \(\Phi\).
+The harmonic summand is a discrete, regularized logarithm: its exact
+marginal deletion loss is \(1/(N+a/2)\), approximately \(1/N\) when
+\(N\gg a\).
+
+The logarithm measures scarcity relative to the typical inventory \(mp\).
+Writing \(r=N/(mp)\), we have
+\[
+\log N=\log(mp)+\log r,\qquad
+\frac{d^2}{dr^2}\log r=-\frac1{r^2}\approx-1\quad(r\approx1).
+\]
+Thus it has order-one curvature in relative-inventory coordinates at
+every spatial scale. Near balance, a unit inventory change produces a
+relative change of order \(1/(mp)\) and occurs with probability of order
+\(p\). Its contribution to the curvature loss is consequently
+\[
+p^2\cdot p\cdot\frac1{(mp)^2}=\frac p{m^2}
+\]
+per node, or \(1/m^2\) per level. The exact counterpart is
+\(\mathcal R\le LH_L\).
+
+\subsection{The feedback as penalized potential ascent}
+
+For positive sibling counts \(x\ge y\), the first-order deletion
+contribution to \(\log x+\log y\) is
+\[
+-\frac{q+b}{2x}-\frac{q-b}{2y}
+=-\frac q2\left(\frac1x+\frac1y\right)
++\frac b2\left(\frac1y-\frac1x\right).
+\]
+The term depending on \(b\) favors deletion from the larger inventory.
+Let \(\bar b\) be the smaller of the two caps in \eqref{eq:policy}.
+The policy is exactly the maximizer of
+\begin{equation}\label{eq:penalized-ascent}
+\max_{0\le b\le\bar b}
+\left\{\frac b2\left(\frac1y-\frac1x\right)-\frac{b^2}{8aq}\right\}.
+\end{equation}
+The unconstrained maximizer is \(2aq(x-y)/(xy)\). This is a local
+logarithmic approximation to the drift design; it is not an exact
+optimization of the full, discrete potential \(\Phi\).
+
+The penalty must be compared with the spatial weight of the potential.
+Both children have weight \(p^2/4\), so the weighted penalty is
+\[
+\frac{p^2b^2}{32aq}
+=\frac{3p}{8aq}\left(\frac{pb^2}{12}\right).
+\]
+When \(q\approx p\), this charges the same multiple of squared transport
+energy at every scale. Equivalently, with
+\(\rho=(x-y)/(x+y)\) and \(\beta=b/q\), the unweighted objective is
+approximately
+\[
+\frac2m\frac{\rho\beta}{1-\rho^2}-\frac p{8a}\beta^2.
+\]
+The potential benefit is scale free in these coordinates, while the
+penalty for a fixed relative bias increases with interval length.
+
+\subsection{Why comparable fluctuations across levels?}
+
+For any stationary policy, using fixed left--right labels and
+\(\Delta=N_{\mathrm L}-N_{\mathrm R}\), one has the exact identities
+\begin{equation}\label{eq:stationary-heuristic}
+\E q=p,\qquad \E[\Delta b]=p.
+\end{equation}
+The first is inventory conservation. For the second, let \(A,B\) be the
+signed child indicators of replenishment and deletion. Then
+\(\Delta'=\Delta+A-B\), with conditional moments
+\(\E A=0\), \(\E A^2=p\), \(\E B=b\), \(\E B^2=q\), and
+\(\E AB=0\). The drift of \(\Delta^2\) is therefore
+\(-2\Delta b+p+q\). Stationarity gives \eqref{eq:stationary-heuristic}.
+
+At a well-stocked node, approximate \(N\) by \(mp\) and the feedback by
+\(b=k_p\Delta\) with deterministic \(k_p\). Let
+\(s_\ell=\E(\Delta/N)^2\) for a node at level \(\ell\) under the
+tree-invariant stationary law, with \(\Delta/N=0\) when \(N=0\). Equation
+\eqref{eq:stationary-heuristic} then predicts
+\[
+s_\ell\approx\frac1{k_pm^2p},\qquad
+E_\ell:=\frac1{12}\sum_{v\in\T_\ell}p_v\E b_v^2
+\approx\frac1{12m^2s_\ell}.
+\]
+Allowing more relative fluctuation makes a level cheaper to stabilize.
+The logarithm suggests how these fluctuations accumulate. When every
+leaf is occupied, set \(r_v=N_v/(mp_v)\) and
+\(\rho_v=(N_{v_{\mathrm L}}-N_{v_{\mathrm R}})/N_v\).
+The identities \(r_{v_{\mathrm L}}=r_v(1+\rho_v)\) and
+\(r_{v_{\mathrm R}}=r_v(1-\rho_v)\) telescope to
+\[
+-\sum_{i\in\T_L}p_i\log r_i
+=\frac12\sum_{v\in\T\setminus\T_L}p_v[-\log(1-\rho_v^2)]
+.
+\]
+Expanding \(-\log(1-\rho^2)\) near zero suggests an expected logarithmic
+scarcity of approximately \(\frac12\sum_\ell s_\ell\). Under a
+provisional bound \(\sum_\ell s_\ell\le C_0\) on accumulated scarcity,
+Cauchy--Schwarz gives
+\(\sum_\ell1/s_\ell\ge L^2/C_0\), with equality at equal
+\(s_\ell\). This motivates distributing relative-inventory risk
+comparably across well-stocked levels.
+
+It also recovers the potential weight. A local penalty
+\(-w(p)\rho^2\approx-w(p)\Delta^2/(m^2p^2)\) has derivative
+\(-2w(p)\Delta/(m^2p^2)\) with respect to \(\Delta\). Since bias \(b\)
+reduces the expected imbalance by \(b\), its first-order benefit is
+\(2w(p)b\Delta/(m^2p^2)\). Charging \(\eta pb^2\) for transport
+gives \(b=w(p)\Delta/(\eta m^2p^3)\). Comparable risk across levels
+requires a feedback coefficient proportional to \(1/p\), hence
+\(w(p)\propto p^2\).
+For \eqref{eq:policy}, the interior prediction is
+\(b\approx8a\Delta/(m^2p)\), giving \(s_\ell\approx1/(8a)\)
+and \(E_\ell\approx2a/(3m^2)\). These scale profiles remain heuristic;
+the proof bounds their aggregate and handles depletion without a
+near-balance assumption.
+
+\section{Further directions}\label{sec:extensions}
+
+The drift calculation uses the nested count structure, conservation, and
+bounded inventory increments. These ingredients can arise in other
+inventory and stochastic allocation systems. The transport step is more
+specific: monotone coupling on the line and symmetry of the binary
+partition turn deletion imbalances into an additive squared-distance
+bound. Extending the method to another geometry requires a corresponding
+transport-energy estimate; the local Lyapunov calculation alone does not
+provide one.
+
+\paragraph{Connection to Shor's Problem D.}
+A spatial sweep suggests a link with Shor's rightward matching problem
+in the unit square \cite{Shor}. Sweep from right to left, use vertical
+coordinates as one-dimensional locations, and hold encountered red
+points in a replenishment queue. Fictitious supplies cover queue
+shortages and correspond to matches to the bottom boundary.
+Combined with a balanced-inventory version of our bound, this gives a
+route to expected total length of order
+\[
+\frac{N\log(m+1)}m+m+\sqrt N.
+\]
+Choosing \(m\asymp\sqrt{N\log(N+1)}\) would recover the order of Shor's
+upper bound. We leave the reduction and its queue accounting outside the
+scope of this paper.
+
+\appendix
+\section{Proof of the local Bellman inequality}\label{app:local-proof}
+
+We prove Lemma~\ref{lem:local}. First suppose both child counts are
+positive and temporarily order them as \(x\ge y\). Normalize all rates by
+the parent rate \(h=q/N\), and set
+\begin{equation}\label{eq:normalized}
+s=\frac Na,\quad r=\frac th,\quad \rho=\frac{x-y}{N},\quad
+\lambda=\rho^2,\quad A=s(1-\lambda),\quad
+g=s+r=\frac p{ah},\quad z=\frac b{ah}.
+\end{equation}
+The domain is \(s>0\), \(-s<r\le1/2\), and \(0\le\rho<1\).
+Writing hats for division by \(h\), direct calculation gives
+\begin{equation}\label{eq:child-normalized}
+\widehat h_\pm=\frac{s\pm z}{s(1\pm\rho)},\qquad
+\widehat t_\pm=\frac{r\mp z}{2},\qquad
+\widehat Z_\pm=\frac{g}{s(1\pm\rho)+1},\qquad
+\frac Zh=\frac{g}{s+1/2}.
+\end{equation}
+The three candidates in \eqref{eq:policy}, divided by \(ah\), become
+\begin{equation}\label{eq:normalized-policy}
+z_F=\frac{8s\rho}{A},\qquad
+z_U=s\rho,\qquad
+z_H=\frac{s-s(1-\rho)r}{s(1-\rho)+1}.
+\end{equation}
+
+Assume first that \(\rho>0\), put
+\begin{equation}\label{eq:kJd}
+k=\frac z\rho,\qquad J=\frac{s-k}{A},\qquad d=s(A+2)+1,
+\end{equation}
+and let \(R_0\) denote the left side of \eqref{eq:local}, divided by
+\(h^2\). Expanding \eqref{eq:Bellman} gives the common identity
+\begin{align}
+R_0={}&\frac{r^2}{8}-\frac{\lambda k^2}{24}
++\frac{g(1/2-r)(s+1)}{2d(s+1/2)} \notag\\
+&+\frac{\lambda g}{d}
+\left[sk-J(s+1/2)-\frac{(1/2-r)s^2}{s+1/2}\right].
+\label{eq:R0}
+\end{align}
+One way to verify \eqref{eq:R0} is first to calculate
+\[
+\frac{\widehat Z_++\widehat Z_-}{2}=\frac{g(s+1)}d,
+\quad
+\frac{\widehat h_++\widehat h_-}{2}=1+\lambda J,
+\quad
+\frac{\widehat h_- -\widehat h_+}{2}=\rho J,
+\]
+and then expand the three terms of \(B\). The child rate-energy increment is
+\begin{equation}\label{eq:rate-increment}
+\E_{\mathrm{ch}}\widehat h'^2-1
+=2\lambda J+(1+\lambda)\lambda J^2.
+\end{equation}
+If \(\rho=0\), then \(z=0\), the right side of \eqref{eq:local} is zero,
+and direct substitution leaves the nonnegative first and third terms of
+\eqref{eq:R0}. We henceforth take \(\rho>0\). Ties between candidates may
+be assigned to either applicable case.
+
+\subsection{The feedback is active}
+
+Here \(k=8s/A\). Comparison with the uniform-deletion cap gives
+\(A\ge8\), and hence \(s\ge A\ge8\), while
+\[
+J=\frac{s(A-8)}{A^2}\ge0.
+\]
+Using \(r\le1/2\) and \(s^2/(s+1/2)\le s\), the bracket in
+\eqref{eq:R0} is at least
+\begin{equation}\label{eq:feedback-bracket}
+rs+\frac{7s^2}{A}+\frac{8s^2}{A^2}
+-\frac s2-\frac{s}{2A}
+\ge rs+\frac{13s^2}{2A}.
+\end{equation}
+For the second inequality, use \(s/2\le s^2/(2A)\) and
+\(8(s/A)^2-s/(2A)\ge0\). The first bound has also discarded a positive
+term \(4s/A^2\).
+
+Set
+\[
+\omega=\frac sA\ge1,\qquad
+u=\frac r\omega,\qquad
+\alpha=\frac1A\le\frac18,\qquad
+C=\frac{13}{2},\qquad
+\delta=\frac d{sA}.
+\]
+Then
+\[
+1+2\alpha\le\delta\le(1+\alpha)^2,
+\qquad
+g=s(1+\alpha u)>0.
+\]
+Discarding the nonnegative third term in \eqref{eq:R0} and applying
+\eqref{eq:feedback-bracket} gives
+\[
+\frac{R_0}{\omega^2}
+\ge\frac{u^2}{8}
++\frac{\lambda}{\delta}(1+\alpha u)(u+C)
+-\frac83\lambda.
+\]
+Completing the square in \(u\) bounds this below by
+\begin{equation}\label{eq:feedback-square}
+\lambda\left[
+\frac C\delta-\frac83-
+\frac{2\lambda(1+C\alpha)^2}
+{\delta(\delta+8\lambda\alpha)}
+\right].
+\end{equation}
+Since \(0\le\lambda\le1\),
+\[
+\frac{2\lambda(1+C\alpha)^2}
+{\delta(\delta+8\lambda\alpha)}
+\le\frac{2(1+13\alpha/2)^2}{(1+2\alpha)(1+10\alpha)}
+\le\frac{19}{8}.
+\]
+For the last inequality, cross multiplication leaves
+\[
+\frac38+\frac52\alpha-37\alpha^2
+\ge\frac38-\frac{17}{8}\alpha\ge\frac7{64},
+\]
+because \(0\le\alpha\le1/8\). Also
+\(C/\delta\ge416/81>41/8\). Therefore
+\begin{equation}\label{eq:feedback-R}
+R_0\ge\left(\frac{41}{8}-\frac83-\frac{19}{8}\right)
+\lambda\omega^2=\frac1{12}\lambda\omega^2.
+\end{equation}
+On the other hand, \(0\le J\le\omega\) and
+\(z^2=64\lambda\omega^2\). Equation~\eqref{eq:rate-increment} gives
+\[
+\E_{\mathrm{ch}}\widehat h'^2-1+z^2
+\le68\lambda\omega^2.
+\]
+Since \(1/12>68/1000\), this proves \eqref{eq:local} in the feedback case.
+
+\subsection{The uniform-deletion cap is active}
+
+Here \(z=s\rho\), so both child rates equal \(h\) and the rate-energy
+increment is zero. Comparison with the feedback gives \(A\le8\).
+Equation~\eqref{eq:R0} simplifies to
+\begin{equation}\label{eq:uniform-R}
+R_0=\frac{r^2}{8}-\frac{z^2}{24}
++\frac{g^2z^2}{d(s+1/2)}
++\frac{g(1/2-r)(s+1)}{2d(s+1/2)}.
+\end{equation}
+
+If \(s\ge1/2\), the bounds \(A\le\min\{s,8\}\) give
+\[
+\frac{d(s+1/2)}{s^2}
+=A+2+\frac{A}{2s}+\frac2s+\frac1{2s^2}
+\le
+\begin{cases}
+19/2,&1/2\le s\le1,\\
+13,&s\ge1.
+\end{cases}
+\]
+Thus \(d(s+1/2)\le13s^2\). Since \(g-r=s\), weighted
+Cauchy--Schwarz gives
+\[
+\frac{r^2}{8}+\frac{\lambda g^2}{13}
+\ge\frac{\lambda(g-r)^2}{13+8\lambda}
+\ge\frac{z^2}{21}.
+\]
+The last term in \eqref{eq:uniform-R} is nonnegative, and hence
+\[
+R_0\ge z^2\left(\frac1{21}-\frac1{24}\right)
+=\frac{z^2}{168}>\frac{z^2}{1000}.
+\]
+
+If \(s\le1/2\), use \(d\le(s+1)^2\) to bound the last term in
+\eqref{eq:uniform-R} below by \(g(1/2-r)/3\). Discarding the positive
+squared term and using \(z^2\le s^2\) gives
+\[
+R_0\ge
+\frac{r^2}{8}-\frac{s^2}{24}
++\frac{(s+r)(1/2-r)}3.
+\]
+The right side is concave in \(r\in[-s,1/2]\). Its endpoint values are
+\(s^2/12\) and \(1/32-s^2/24\ge s^2/12\). Thus
+\(R_0\ge z^2/12\), completing this case.
+
+\subsection{The rate-floor cap is active}
+
+Use coordinates adapted to the active equality:
+\begin{equation}\label{eq:floor-coordinates}
+u=\frac{2y}{a},\qquad
+K=\frac{2h_-}{h}-1,\qquad
+e=1-\frac{2t}{h},\qquad
+v=\frac{2x}{a}.
+\end{equation}
+The uniform-deletion cap gives \(K\ge1\), and
+\eqref{eq:invariant-domain} gives \(e\ge0\). The rate-floor equality
+implies
+\begin{equation}\label{eq:floor-identities}
+v=K(u+1)+e,\qquad
+z=\frac{K+e}{2},\qquad
+\widehat h_- =\widehat Z_- =\frac{K+1}{2}.
+\end{equation}
+Keep the larger child's normalized rate and inverse inventory in
+\[
+\ell=\widehat h_+
+=1-\frac{u(K-1)}{2v},\qquad
+w=\widehat Z_+
+=\frac{(K+1)(u+1)}{2(v+1)},
+\]
+and put
+\[
+\eta=\frac{v+1-u}{v+1+u}.
+\]
+The normalized drifts are
+\[
+\widehat t_+=-\frac{2e+K-1}{4},\qquad
+\widehat t_- =\frac{K+1}{4},
+\]
+while \(Z/h=(K+1)(u+1)/(u+v+1)\). Substitution in
+\eqref{eq:Bellman} gives
+\begin{equation}\label{eq:floor-R}
+R_0=
+\frac{5K^2+12K+9+2e^2-2Ke-6e}{96}
++\frac w2\left(e\eta-\frac{K-1+\ell}{2}\right).
+\end{equation}
+
+We use only the following three consequences of the policy:
+\begin{equation}\label{eq:floor-bounds}
+0<\ell\le1,\qquad
+0<w\le\frac{K+1}{2K},\qquad
+\eta\ge\frac{K+e}{16+K+e}.
+\end{equation}
+The first two follow from \(v=K(u+1)+e\). For the third, comparison with
+the feedback candidate gives
+\[
+4(v^2-u^2)\ge(K+e)uv.
+\]
+Put \(\theta=u/v\) and \(c=(1-\theta)/(1+\theta)\). Then
+\[
+16c\ge(K+e)(1-c^2)\ge(K+e)(1-c),
+\]
+so \(c\ge(K+e)/(16+K+e)\); since \(\eta\ge c\), the final bound in
+\eqref{eq:floor-bounds} follows.
+
+If \(e\eta\ge K/2\), the second term in \eqref{eq:floor-R} is
+nonnegative. Using \(2(K+3)e\le e^2+(K+3)^2\) in the first term gives
+\begin{equation}\label{eq:floor-first-case}
+R_0\ge\frac{4K^2+6K+e^2}{96}.
+\end{equation}
+If \(e\eta<K/2\), use \(\ell\le1\), then the upper bound on \(w\), and
+finally the lower bound on \(\eta\). Because the intervening factor is
+negative, the inequality directions are preserved. The result is
+\begin{equation}\label{eq:J-bound}
+96R_0\ge J(K,e),
+\end{equation}
+where
+\[
+J(K,e)=5K^2-3+2e^2-(2K+6)e
++\frac{24(K+1)e(K+e)}{K(16+K+e)}.
+\]
+We claim that
+\begin{equation}\label{eq:J-claim}
+J(K,e)\ge\frac{K^2+e^2}{4}
+\qquad(K\ge1,\ e\ge0).
+\end{equation}
+To prove \eqref{eq:J-claim}, first suppose \(e\ge K\). Then
+\[
+\frac{24(K+1)(K+e)}{K(16+K+e)}
+\ge\frac{24(K+1)}{K+8},
+\qquad
+2K+6-\frac{24(K+1)}{K+8}\le\frac{8K}{3}.
+\]
+The second inequality follows by cross multiplication from
+\(2(K-1)(K+36)\ge0\). Hence
+\[
+J(K,e)\ge2K^2+2e^2-\frac83Ke
+\ge\frac23(K^2+e^2).
+\]
+Here we used \(K\ge1\) and \(2Ke\le K^2+e^2\).
+
+Now suppose \(e\le K\), and put \(\xi=e/K\in[0,1]\) and
+\(c=1+\xi\in[1,2]\). Since
+\[
+\frac{K+1}{16+Kc}\ge\frac2{16+c},
+\qquad
+6-\frac{48c}{16+c}\ge\frac23,
+\]
+we have
+\begin{align*}
+\frac{J(K,e)}{K^2}
+&\ge5+2\xi^2-2\xi-\frac3{K^2}
+ -\frac{\xi}{K}\left(6-\frac{48c}{16+c}\right)\\
+&\ge2+2\xi^2-8\xi+\frac{48\xi(1+\xi)}{17+\xi}
+=:j(\xi).
+\end{align*}
+The bound \((K+1)/(16+Kc)\ge2/(16+c)\) is equivalent to
+\((K-1)(16-c)\ge0\); the second line uses \(K\ge1\).
+Finally,
+\[
+4(17+\xi)\left[j(\xi)-\frac{1+\xi^2}{4}\right]
+=7\xi^3+29(3\xi-2)^2+18\xi^2+3\xi+3\ge0.
+\]
+This proves \eqref{eq:J-claim} in both cases.
+
+
+Equations~\eqref{eq:floor-first-case} and \eqref{eq:J-claim} imply in
+the two cases that
+\[
+R_0\ge\frac{K^2+e^2}{384}.
+\]
+Moreover, \(\ell\le1\), \((K+1)^2/4\le K^2\), and
+\((K+e)^2/4\le(K^2+e^2)/2\) give
+\[
+\E_{\mathrm{ch}}\widehat h'^2-1+z^2
+\le\frac{(K+1)^2/4-1}{2}+\frac{(K+e)^2}{4}
+\le K^2+e^2.
+\]
+Since \(1/384>1/1000\), this proves \eqref{eq:local} in the rate-floor
+case.
+
+\subsection{Empty-node boundaries}
+
+When the smaller child becomes empty, hold the parent variables fixed and
+let its count tend continuously to zero in the preceding formulas. The
+feedback candidate diverges. If \(g=p/(ah)<1\), the uniform-deletion cap
+is eventually active and the limiting auxiliary empty-child rate is
+\(h\). If \(g>1\), the rate-floor cap is eventually active and the limiting
+rate is \(gh=p/a\). At \(g=1\) the limits agree. This is precisely the
+definition \eqref{eq:empty-rate}, so \eqref{eq:local} extends continuously.
+Equivalently, the floor formulas apply directly at \(u=0\), where
+\(v=K+e\), \(g=(K+1)/2\ge1\), and the occupied child's normalized rate
+equals one.
+
+At an empty parent, \(t=p/a\), \(Z=2t\), and both children inherit \(h\),
+with \(t'=t/2\) and \(Z'=t\). Direct calculation gives
+\[
+\E_{\mathrm{ch}}[t'Z'+B']-B
+=\frac{ht}{2}-\frac{7t^2}{8}
+\ge\frac{ht}{16},
+\]
+because \(0<t\le h/2\). Both terms on the right side of
+\eqref{eq:local} vanish. This completes the proof of
+Lemma~\ref{lem:local}.
+
+
+\section*{AI assistance}
+OpenAI's ChatGPT and Codex were used in developing the policy and proof,
+checking algebra, and drafting and revising the manuscript.
+
+\section*{Data availability}
+No datasets were generated or analyzed. All proofs are contained in the
+article.
+
+\begin{thebibliography}{9}
+
+\bibitem{AKT}
+M.~Ajtai, J.~Koml\'os, and G.~Tusn\'ady.
+On optimal matchings.
+\emph{Combinatorica}, 4(4):259--264, 1984.
+\href{https://doi.org/10.1007/BF02579135}{doi:10.1007/BF02579135}.
+
+\bibitem{BFP}
+E.~Balkanski, Y.~Faenza, and N.~P\'erivier.
+The power of greedy for online minimum cost matching on the line.
+In \emph{Proceedings of the 24th ACM Conference on Economics and
+Computation}, pages 185--205, 2023.
+Full version: \href{https://arxiv.org/abs/2210.03166v3}{arXiv:2210.03166v3},
+2025.
+
+\bibitem{HPZ}
+N.~Holden, Y.~Peres, and A.~Zhai.
+Gravitational allocation for uniform points on the sphere.
+\emph{The Annals of Probability}, 49(1):287--321, 2021.
+\href{https://doi.org/10.1214/20-AOP1452}{doi:10.1214/20-AOP1452}.
+
+\bibitem{Kanoria}
+Y.~Kanoria.
+Dynamic spatial matching.
+\emph{arXiv:2105.07329v3}, 2023.
+\href{https://arxiv.org/abs/2105.07329v3}{arXiv:2105.07329}.
+
+\bibitem{Shor}
+P.~W.~Shor.
+How to pack better than Best Fit: tight bounds for average-case online
+bin packing.
+In \emph{Proceedings of the 32nd Annual Symposium on Foundations of
+Computer Science}, pages 752--759, 1991.
+\href{https://doi.org/10.1109/SFCS.1991.185444}{doi:10.1109/SFCS.1991.185444}.
+
+\end{thebibliography}
+\end{document}

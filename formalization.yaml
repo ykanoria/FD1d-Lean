@@ -1,0 +1,162 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/99c678e569c7c4c0772db297c5ddd5e4c9b6322e/schema/formalization.schema.json
+version: "v0.4"
+
+project:
+  name: "Optimal Fully Dynamic Matching on the Line: Lean Upper Bound"
+  description: >-
+    A Lean 4 formalization of the main constructive upper bound for fully
+    dynamic matching on the unit interval. For every inventory size m at least
+    two, the development constructs a measurable online policy for iid uniform
+    demand and replenishment. From every fixed initial inventory it proves a
+    limsup root-mean-square one-period cost of at most C log(m+1)/m, with the
+    explicit universal constant C = 72000/log(2). After a scheduled m-period
+    replacement phase, it proves the same upper bound for expected average cost
+    at every horizon N at least 2m^2. The compared result deliberately excludes
+    the manuscript's implementation-complexity sentence because the development
+    has no operational cost semantics linking abstract counters to execution.
+  authors:
+    - "Yash Kanoria"
+  license: "Apache-2.0"
+  responsible_maintainers:
+    - "Yash Kanoria"
+
+classification:
+  arxiv:
+    - "math.OC"
+    - "math.PR"
+  msc2020:
+    - "68W27"
+    - "90C40"
+    - "60J20"
+
+sources:
+  - title: "Optimal fully dynamic matching on the line"
+    authors:
+      - "Yash Kanoria"
+    type: "paper"
+    location: >-
+      manuscript/optimal_dynamic_matching.tex in this repository, bundle v5
+      dated 2026-09-10
+    relationship: "formalizes"
+    note: >-
+      The compared declaration formalizes the constructive upper-bound theorem.
+      The source manuscript is included byte-for-byte from
+      optimal_dynamic_matching_bundlev5.zip, whose SHA-256 digest is
+      2445c54fc5f1cb81258838644f91394c3723e2fa1958c4a00f46decf831b0408.
+      No DOI, journal citation, or arXiv identifier was available when this
+      metadata was prepared. The manuscript author is also responsible for the
+      formalization.
+    author_endorsement: "participated"
+  - title: "Dynamic spatial matching"
+    authors:
+      - "Yash Kanoria"
+    id: "arXiv:2105.07329"
+    type: "paper"
+    location: "arXiv:2105.07329v3 (2023)"
+    relationship: "background"
+    note: >-
+      Establishes the lower bound and earlier upper bound discussed by the
+      source manuscript. Its lower bound is not formalized in the compared
+      declaration.
+    author_endorsement: "participated"
+
+related_formalizations: []
+
+status:
+  scope: >-
+    The compared theorem covers the two quantitative upper-bound clauses of the
+    manuscript's main theorem: arbitrary-initial-state long-run RMS cost and
+    initialized finite-horizon expected average cost. It constructs the policy
+    and path-space law and proves explicit constants. The source manuscript's
+    implementation-complexity sentence, lower-bound-based Theta corollary,
+    optimal long-run corollary, balanced-initial-law corollary, and non-compared
+    supporting propositions are not advertised as Palomar results.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+  main_results:
+    - declaration: "FD1D.V5.Palomar.optimalDynamicMatchingUpperBound"
+      file: "FD1D/V5/PaperStatements.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "comparator.json"
+      literature_dependencies: []
+
+automation:
+  methods:
+    - method: "agent"
+      models:
+        - "OpenAI GPT-5 family"
+      framework: "ChatGPT and Codex"
+      tool_setup: >-
+        Human-directed AI agents developed the mathematical policy, Lean proof
+        modules, paper-facing statement bridge, and publication audit using
+        Lean, Mathlib, local builds, source scans, Comparator, and NanoDa.
+      cost:
+        wall_time: "not fully recorded"
+        spend_usd: "not tracked"
+        hardware: "cloud development environment"
+      prompting_notes: >-
+        Work was organized around completing the V5 proof dependency chain,
+        exposing the manuscript theorem through a compact Mathlib-only
+        statement, and auditing proof closure and statement fidelity.
+  spend_usd: "not tracked"
+  notes: >-
+    The manuscript itself discloses that OpenAI ChatGPT and Codex contributed
+    to policy and proof development, algebra checking, and drafting. The Lean
+    formalization was produced iteratively under human direction. Exact
+    historical model versions, total wall time, and compute usage were not
+    fully recorded. The final repository was rebuilt and mechanically audited
+    for placeholders, custom axioms, schema validity, and statement equality.
+
+fidelity:
+  divergences: >-
+    The Lean target fixes C to 72000/log(2), strengthening the manuscript's
+    existential universal constant. Its policy is memoryless in the current
+    inventory and demand, which is a special case of the history-dependent
+    online policies allowed by the manuscript. The initialization demands are
+    universally quantified as fixed points and the independent post-refresh
+    trajectory is modeled separately; this implies the manuscript's expected
+    initialization guarantee because each scheduled match costs at most one.
+    The implementation-complexity sentence is omitted: internal modules prove
+    asymptotic inequalities for declared operation and memory accounting
+    functions, but there is no executable operational semantics proving that
+    evaluation of OnlinePolicy consumes those resources. The lower-bound-based
+    optimality corollary and balanced-initial-law corollary are also omitted
+    from the compared result.
+
+review:
+  status: "agent-reviewed"
+  reviewers:
+    - "OpenAI Codex"
+  notes: >-
+    The source theorem and Lean signature were compared clause by clause.
+    Challenge.lean is independently Mathlib-only. Automated checks cover the
+    target's dependency closure, all proof placeholders, permitted axioms,
+    source checksums, and Comparator/NanoDa replay. No independent human
+    mathematical peer review of the Lean development is recorded here.
+
+alignment:
+  namespace: "FD1D.V5.Palomar"
+  statements:
+    - source: "Theorem 1 (constructive upper-bound clauses)"
+      lean: "FD1D.V5.Palomar.optimalDynamicMatchingUpperBound"
+      module: "FD1D.V5.PaperStatements"
+      status: "proved"
+      note: >-
+        Constructs a measurable hierarchical policy for each m >= 2, proves the
+        arbitrary-initial-inventory limsup RMS bound and initialized
+        finite-horizon expected average-cost bound with an explicit universal
+        constant. See STATEMENTS.md for the clause-level map and limitations.
+
+acknowledgements: >-
+  Built with Lean and Mathlib. The independent Challenge/Solution check uses
+  leanprover/comparator and NanoDa. The mathematical manuscript and
+  formalization were developed with disclosed assistance from OpenAI ChatGPT
+  and Codex.

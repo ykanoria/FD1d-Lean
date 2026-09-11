@@ -1,0 +1,10 @@
+Optimal Fully Dynamic Matching on the Line in Lean
+Copyright 2026 Yash Kanoria
+
+This work is licensed under the Apache License, Version 2.0.
+See LICENSE for the full license text.
+
+The repository depends on Lean and Mathlib but does not vendor their source.
+The manuscript records substantive OpenAI ChatGPT and Codex assistance in
+developing the mathematical policy and proof, checking algebra, and drafting.
+Codex also assisted with the Lean formalization and publication audit.
