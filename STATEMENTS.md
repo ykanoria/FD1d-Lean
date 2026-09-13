@@ -1,14 +1,39 @@
-# Mathematical Statement Map
+# A Tight Upper Bound for Fully Dynamic Matching on the Line
 
 The authoritative Palomar statement is `Challenge.lean`. The completed proof
 is exported by:
 
 `FD1D.V5.Palomar.optimalDynamicMatchingUpperBound`
 
-This document maps that declaration to Theorem 1 of *Optimal fully dynamic
-matching on the line*.
+## Problem and Result
 
-## Model
+There are `m` labeled supplies in `[0,1]`. In each period, an independent
+uniform demand arrives; an online policy selects one live supply, pays the
+distance between them, and replaces that supply by an independent uniform
+point. This is the one-dimensional fully dynamic model studied in Kanoria's
+[*Dynamic spatial matching*](https://doi.org/10.1214/25-AAP2154), published in
+*The Annals of Applied Probability* 35(5) (2025). That paper established a
+lower bound of order `log(m)/m` and an upper bound of order `log(m)^2/m`, and
+posed closing this logarithmic gap as an open problem.
+
+We construct a policy and show that its performance matches the prior known
+lower bound up to a universal constant factor. Specifically, for every
+`m >= 2`, from every fixed initial inventory, its root-mean-square one-period
+cost has limsup at most `C log(m+1)/m`, with `C = 72000/log(2)`. With a
+scheduled `m`-period replacement phase, its expected average cost, including
+that phase, has the same bound for every total horizon `N >= 2m^2`.
+
+The policy assigns deletion probabilities recursively on a dyadic tree and
+implements them by quantile transport. Its analysis combines a harmonic
+inventory potential with a quadratic Bellman inequality. Tree symmetry
+cancels interactions between spatial scales, while the Bellman inequality
+controls both transport discrepancy and the curvature loss in the potential
+drift.
+
+The sections below map this result to the vocabulary and quantifiers of the
+compared Lean declaration.
+
+## Lean Model
 
 For a natural number `m`:
 
@@ -24,7 +49,7 @@ For a natural number `m`:
   initial inventory.
 
 The Lean policy is memoryless in the current state and demand. This is a
-special case of the manuscript's policies, which may use the full history.
+special case of an online policy that may use the full history.
 
 ## Cost Clause From Arbitrary Initial Inventory
 
@@ -36,8 +61,8 @@ processCost P z =
 ```
 
 `trajectoryRMSCostFromState P s0 t` is the square root of the expected square
-of this distance at path time `t`. Path time zero corresponds to the
-manuscript's first policy period.
+of this distance at path time `t`. Path time zero is the first period governed
+by the policy.
 
 For every `m >= 2`, the target produces a policy `P` such that, for every
 fixed `s0`,
@@ -53,9 +78,8 @@ where:
 universalConstant = 72000 / log 2.
 ```
 
-This is `PolicyGuarantees.arbitraryInitialRMS`. It represents part (i) of the
-manuscript theorem and strengthens its existential constant by fixing an
-explicit value.
+This is `PolicyGuarantees.arbitraryInitialRMS`. It proves the advertised
+long-run RMS clause and fixes an explicit universal constant.
 
 ## Initialized Finite-Horizon Clause
 
@@ -81,7 +105,7 @@ distribution because all retained replenishments and later noise coordinates
 are independent and uniform.
 
 The quantity divides initialization cost plus `N-m` policy-period costs by
-`N`, exactly representing the manuscript's full horizon.
+`N`, so the total horizon includes the scheduled replacement phase.
 
 ## Policy Quantifiers
 
@@ -92,9 +116,8 @@ forall m, 2 <= m ->
   exists P : OnlinePolicy m, PolicyGuarantees m P.
 ```
 
-Thus the policy may depend on `m`, as in the manuscript. Each witness is the
-hierarchical policy defined in `FD1D.V5.PaperStatements`, with regularization
-and tree depth:
+Thus the policy may depend on `m`. Each witness is the hierarchical policy
+defined in `FD1D.V5.PaperStatements`, with regularization and tree depth:
 
 ```text
 regularization m = 2000 * Nat.clog 2 (m+1)
@@ -130,11 +153,12 @@ machine steps or memory words.
 
 The compared declaration does not claim:
 
-- the lower bound from Kanoria's *Dynamic spatial matching*;
-- the manuscript's resulting `Theta(log m / m)` optimality corollary;
+- the lower bound from Kanoria's
+  [*Dynamic spatial matching*](https://doi.org/10.1214/25-AAP2154);
+- the resulting `Theta(log m / m)` optimality corollary;
 - the corresponding optimal long-run expected-cost corollary;
 - the balanced-initial-inventory corollary;
-- the manuscript's implementation-complexity sentence;
+- an executable implementation-complexity conclusion;
 - executable runtime verification.
 
 Several supporting results and the balanced count-law estimate are present in

@@ -2,18 +2,28 @@
 version: "v0.4"
 
 project:
-  name: "Optimal Fully Dynamic Matching on the Line: Lean Upper Bound"
+  name: "A Tight Upper Bound for Fully Dynamic Matching on the Line"
   description: >-
-    A Lean 4 formalization of the main constructive upper bound for fully
-    dynamic matching on the unit interval. For every inventory size m at least
-    two, the development constructs a measurable online policy for iid uniform
-    demand and replenishment. From every fixed initial inventory it proves a
-    limsup root-mean-square one-period cost of at most C log(m+1)/m, with the
-    explicit universal constant C = 72000/log(2). After a scheduled m-period
-    replacement phase, it proves the same upper bound for expected average cost
-    at every horizon N at least 2m^2. The compared result deliberately excludes
-    the manuscript's implementation-complexity sentence because the development
-    has no operational cost semantics linking abstract counters to execution.
+    There are `m` labeled supplies in `[0,1]`. In each period, an independent
+    uniform demand arrives; an online policy selects one live supply, pays the
+    distance between them, and replaces that supply by an independent uniform
+    point. This is the one-dimensional fully dynamic model studied in Kanoria's
+    [*Dynamic spatial matching*](https://doi.org/10.1214/25-AAP2154). That paper
+    established a lower bound of order `log(m)/m` and an upper bound of order
+    `log(m)^2/m`, and posed closing this logarithmic gap as an open problem.
+
+
+    We construct a policy and show that its performance matches the prior known
+    lower bound up to a universal constant factor. Specifically, for every
+    `m >= 2`, from every fixed initial inventory, its root-mean-square one-period
+    cost has limsup at most `C log(m+1)/m`, with `C = 72000/log(2)`. With a
+    scheduled `m`-period replacement phase, its expected average cost, including
+    that phase, has the same bound for every total horizon `N >= 2m^2`. The policy
+    assigns deletion probabilities recursively on a dyadic tree and implements
+    them by quantile transport. Its analysis combines a harmonic inventory
+    potential with a quadratic Bellman inequality. Tree symmetry cancels
+    interactions between spatial scales, while the Bellman inequality controls
+    both transport discrepancy and the curvature loss in the potential drift.
   authors:
     - "Yash Kanoria"
   license: "Apache-2.0"
@@ -50,14 +60,14 @@ sources:
   - title: "Dynamic spatial matching"
     authors:
       - "Yash Kanoria"
-    id: "arXiv:2105.07329"
+    id: "https://doi.org/10.1214/25-AAP2154"
     type: "paper"
-    location: "arXiv:2105.07329v3 (2023)"
+    location: "The Annals of Applied Probability 35(5) (2025)"
     relationship: "background"
     note: >-
-      Establishes the lower bound and earlier upper bound discussed by the
-      source manuscript. Its lower bound is not formalized in the compared
-      declaration.
+      Published version of arXiv:2105.07329v3 (2023). Establishes the lower
+      bound and earlier upper bound discussed by the source manuscript. Its
+      lower bound is not formalized in the compared declaration.
     author_endorsement: "participated"
 
 related_formalizations: []
