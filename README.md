@@ -109,10 +109,11 @@ details.
 
 ## Source and Production
 
-The two files in `manuscript/` are byte-for-byte copies from
-`optimal_dynamic_matching_bundlev5.zip`; checksums and the original bundle
-digest are recorded in `manuscript/README.md`. The manuscript has no external
-DOI or arXiv identifier recorded as of 2026-09-11.
+The named TeX source in `manuscript/` is a byte-for-byte copy from
+`optimal_dynamic_matching_bundlev5.zip`; its checksum and the original bundle
+digest are recorded in `manuscript/README.md`. The anonymous review wrapper
+and generated PDFs are omitted. The manuscript has no external DOI or arXiv
+identifier recorded as of 2026-09-11.
 
 The manuscript discloses substantive OpenAI ChatGPT and Codex assistance in
 the mathematical policy, proof, algebra checks, and drafting. Codex also

@@ -1,6 +1,6 @@
 # Manuscript Source Provenance
 
-The manuscript files are byte-for-byte copies from:
+The manuscript source is a byte-for-byte copy from:
 
 `optimal_dynamic_matching_bundlev5.zip`
 
@@ -12,8 +12,8 @@ Bundle SHA-256:
 
 The bundle was dated 2026-09-10 and supplied locally for this formalization.
 It contained named and anonymous TeX/PDF pairs plus a README. This repository
-keeps the two TeX sources needed to identify and audit the mathematical source;
-the generated PDFs are omitted.
+keeps the named TeX source needed to identify and audit the mathematical
+source; the anonymous review wrapper and generated PDFs are omitted.
 
 Run:
 
